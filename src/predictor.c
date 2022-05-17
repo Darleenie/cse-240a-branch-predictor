@@ -309,8 +309,8 @@ void init_custom() {
   int i;
   for(i = 0; i< perc_entries; i++){
     int j;
-    perc_table[i] = (int*)malloc(perc_ghistoryBits * sizeof(int));
-    for(j = 0; j < perc_ghistoryBits; j++){
+    perc_table[i] = (int*)malloc((perc_ghistoryBits+1) * sizeof(int));
+    for(j = 0; j < perc_ghistoryBits+1; j++){
       perc_table[i][j] = 1;
     }
   }
@@ -329,7 +329,8 @@ custom_predict(uint32_t pc) {
   uint32_t index = pc_lower_bits ^ ghistory_lower_bits;
   int i;
   int result = 0;
-  for(i=0; i<perc_ghistoryBits; i++){
+  result += perc_table[index][0] * 1; //balance
+  for(i=1; i<perc_ghistoryBits+1; i++){
     if (1 & (ghistory_lower_bits >> i)){
       result += perc_table[index][i] * 1;
     }else{
@@ -349,7 +350,8 @@ train_custom(uint32_t pc, uint8_t outcome) {
   uint32_t index = pc_lower_bits ^ ghistory_lower_bits;
   int i;
   int result = 0;
-  for(i=0; i<perc_ghistoryBits; i++){
+  result += perc_table[index][0] * 1; //balance
+  for(i=1; i<perc_ghistoryBits+1; i++){
     if (1 & (ghistory_lower_bits >> i)){
       result += perc_table[index][i] * 1;
     }else{
@@ -358,42 +360,21 @@ train_custom(uint32_t pc, uint8_t outcome) {
   }
   int b_output = (result >= 0)?TAKEN:NOTTAKEN;
   int outcome_pos_neg = (outcome)?1:-1;
-  // for (int i = 0; i < perc_ghistoryBits; i++) {
-  //   printf("%d,", perc_table[pc_lower_bits][i]);
-  // }
-  // printf("result:%d, b_output: %d, outcome:%d, b_output_pos_neg:%d\n", result, b_output, outcome, b_output_pos_neg);
+  
   if(outcome != b_output || abs(result) < thred){
-  //   printf("before:");
-  //   for (int i = 0; i < perc_ghistoryBits; i++) {
-  //   printf("%d,", perc_table[index][i]);
-  // }
-  // printf("result:%d, b_output: %d, outcome:%d, ", result, b_output, outcome);
-    for(i=0; i<perc_ghistoryBits; i++){
+    perc_table[index][0] += 50 * outcome_pos_neg; //balance
+    for(i=1; i<perc_ghistoryBits+1; i++){
       if (1 & (ghistory_lower_bits >> i)){
-        // printf("1");
-        //  if(abs(perc_table[index][i]) > 3){
-          // printf("index:%d", index);
-          perc_table[index][i] += 1 * outcome_pos_neg;
-        // }else{
-        //   perc_table[index][i] += 1 * outcome_pos_neg;
-        // }
-        
-       
+          if(perc_table[index][i] > -8 && perc_table[index][i] < 7){
+            perc_table[index][i] += 1 * outcome_pos_neg;
+          } 
       }else{
-        // printf("0");
-        // if(abs(perc_table[index][i]) > 3){
-          // printf("index:%d", index);
-          perc_table[index][i] += -1 * outcome_pos_neg;
-        // }else{
-        // perc_table[index][i] += -1 * outcome_pos_neg;
-        // }
+          if(perc_table[index][i] > -8 && perc_table[index][i] < 7){
+            perc_table[index][i] += -1 * outcome_pos_neg;
+          }
+          
       }
     }
-  // printf("after:");
-  // for (int i = 0; i < perc_ghistoryBits; i++) {
-  //   printf("%d,", perc_table[index][i]);
-  // }
-  //   printf("\n");
   }
   
   //Update history register
