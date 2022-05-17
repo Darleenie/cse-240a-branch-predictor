@@ -34,7 +34,7 @@ int verbose;
 
 //perceptron
 // int perc_wBits = 12; //FIXME: find out the best number of weight length
-int perc_ghistoryBits = 16; //FIXME: find out the best number of weight length
+int perc_ghistoryBits = 12; //FIXME: find out the best number of weight length
 int thred = 40; //FIXME
 
 #define SL 0
@@ -365,11 +365,11 @@ train_custom(uint32_t pc, uint8_t outcome) {
     perc_table[index][0] += 50 * outcome_pos_neg; //balance
     for(i=1; i<perc_ghistoryBits+1; i++){
       if (1 & (ghistory_lower_bits >> i)){
-          if(perc_table[index][i]+(1 * outcome_pos_neg) > -8 && perc_table[index][i]+(1 * outcome_pos_neg) < 7){
+          if(perc_table[index][i]+(1 * outcome_pos_neg) > -16 && perc_table[index][i]+(1 * outcome_pos_neg) < 15){
             perc_table[index][i] += 1 * outcome_pos_neg;
           } 
       }else{
-          if(perc_table[index][i]+(-1 * outcome_pos_neg) > -8 && perc_table[index][i]+(-1 * outcome_pos_neg) < 7){
+          if(perc_table[index][i]+(-1 * outcome_pos_neg) > -16 && perc_table[index][i]+(-1 * outcome_pos_neg) < 15){
             perc_table[index][i] += -1 * outcome_pos_neg;
           }
           
