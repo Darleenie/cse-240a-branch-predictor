@@ -365,11 +365,11 @@ train_custom(uint32_t pc, uint8_t outcome) {
     perc_table[index][0] += 50 * outcome_pos_neg; //balance
     for(i=1; i<perc_ghistoryBits+1; i++){
       if (1 & (ghistory_lower_bits >> i)){
-          if(perc_table[index][i] > -8 && perc_table[index][i] < 7){
+          if(perc_table[index][i]+(1 * outcome_pos_neg) > -8 && perc_table[index][i]+(1 * outcome_pos_neg) < 7){
             perc_table[index][i] += 1 * outcome_pos_neg;
           } 
       }else{
-          if(perc_table[index][i] > -8 && perc_table[index][i] < 7){
+          if(perc_table[index][i]+(-1 * outcome_pos_neg) > -8 && perc_table[index][i]+(-1 * outcome_pos_neg) < 7){
             perc_table[index][i] += -1 * outcome_pos_neg;
           }
           
